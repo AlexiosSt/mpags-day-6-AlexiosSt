@@ -14,16 +14,26 @@ int main(int argc, char* argv[])
 {
     // Convert the command-line arguments into a more easily usable form
     const std::vector<std::string> cmdLineArgs{argv, argv + argc};
-
-    // Options that might be set by the command-line arguments
-    ProgramSettings settings{false, false, "", "", {}, {}, CipherMode::Encrypt};
-
+    
     // Process command line arguments
-    const bool cmdLineStatus{processCommandLine(cmdLineArgs, settings)};
-
-    // Any failure in the argument processing means we can't continue
-    // Use a non-zero return value to indicate failure
-    if (!cmdLineStatus) {
+    ProgramSettings settings;
+    try{
+        settings = processCommandLine(cmdLineArgs);
+    }
+    catch(const MissingArgument& e){
+        std::cerr<<"[error] Missing argument: "<<e.what()<<std::endl;
+        return 1;
+    }
+    catch(const UnkownArgument& e){
+        std::cerr<<"[error] Unknown argument: "<<e.what()<<std::endl;
+        return 1;
+    }
+    catch(const InvalidArgument& e){
+        std::cerr<<"[error] Invalid argument: "<<e.what()<<std::endl;
+        return 1;
+    }   
+    catch(const InconsistentArguments& e){
+        std::cerr<<"[error] Inconsistent arguments: "<<e.what()<<std::endl;
         return 1;
     }
 
@@ -31,24 +41,23 @@ int main(int argc, char* argv[])
     if (settings.helpRequested) {
         // Line splitting for readability
         std::cout
-            << "Usage: mpags-cipher [-h/--help] [--version] [-i <file>] [-o <file>] [-c <cipher>] [-k <key>] [--encrypt/--decrypt]\n\n"
+            << "Usage: mpags-cipher [-h/--help] [-v|--version] [-i|infile <file>] [-o|outfile <file>] [-c|--cipher <cipher>] [-k|--key <key>] [--encrypt/--decrypt]\n\n"
             << "Encrypts/Decrypts input alphanumeric text using classical ciphers\n\n"
-            << "Available options:\n\n"
-            << "  -h|--help        Print this help message and exit\n\n"
-            << "  --version        Print version information\n\n"
-            << "  -i FILE          Read text to be processed from FILE\n"
-            << "                   Stdin will be used if not supplied\n\n"
-            << "  -o FILE          Write processed text to FILE\n"
-            << "                   Stdout will be used if not supplied\n\n"
-            << "                   Stdout will be used if not supplied\n\n"
-            << "  --multi-cipher N Specify the number of ciphers to be used in sequence\n"
-            << "                   N should be a positive integer - defaults to 1"
-            << "  -c CIPHER        Specify the cipher to be used to perform the encryption/decryption\n"
-            << "                   CIPHER can be caesar, playfair, or vigenere - caesar is the default\n\n"
-            << "  -k KEY           Specify the cipher KEY\n"
-            << "                   A null key, i.e. no encryption, is used if not supplied\n\n"
-            << "  --encrypt        Will use the cipher to encrypt the input text (default behaviour)\n\n"
-            << "  --decrypt        Will use the cipher to decrypt the input text\n\n"
+            << "Available options:\n"
+            << "  -h|--help           Print this help message and exit\n"
+            << "  -v|--version        Print version information\n"
+            << "  -i|--infile FILE    Read text to be processed from FILE\n"
+            << "                      Stdin will be used if not supplied\n"
+            << "  -o|--outfile FILE   Write processed text to FILE\n"
+            << "                      Stdout will be used if not supplied\n"
+            << "  --multi-cipher N    Specify the number of ciphers to be used in sequence\n"
+            << "                      N should be a positive integer - defaults to 1"
+            << "  -c|--cipher CIPHER  Specify the cipher to be used to perform the encryption/decryption\n"
+            << "                      CIPHER can be caesar, playfair, or vigenere - caesar is the default\n"
+            << "  -k|--key KEY        Specify the cipher KEY\n"
+            << "                      A null key, i.e. no encryption, is used if not supplied\n"
+            << "  --encrypt           Will use the cipher to encrypt the input text (default behaviour)\n"
+            << "  --decrypt           Will use the cipher to decrypt the input text\n"
             << std::endl;
         // Help requires no further action, so return from main
         // with 0 used to indicate success
@@ -93,6 +102,7 @@ int main(int argc, char* argv[])
     // Request construction of the appropriate cipher(s)
     std::vector<std::unique_ptr<Cipher>> ciphers;
     std::size_t nCiphers{settings.cipherType.size()};
+    std::cout<<"OK, we run with "<<nCiphers<<" cipher(s)! "<<std::endl;
     ciphers.reserve(nCiphers);
     for (std::size_t iCipher{0}; iCipher < nCiphers; ++iCipher) {
         ciphers.push_back(CipherFactory::makeCipher(

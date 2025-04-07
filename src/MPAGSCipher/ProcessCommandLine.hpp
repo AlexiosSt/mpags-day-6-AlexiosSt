@@ -3,6 +3,7 @@
 
 #include "CipherMode.hpp"
 #include "CipherType.hpp"
+#include "CustomExceptions.hpp"
 
 #include <string>
 #include <vector>
@@ -37,10 +38,10 @@ struct ProgramSettings {
  * \brief Processes the command-line arguments and modifies accordingly the program settings
  *
  * \param cmdLineArgs the command-line arguments to be processed
- * \param settings the program settings to be modified based upon the arguments received
  * \return true if the arguments could be successfully parsed, false otherwise
+ * \exception MissingArgument will be thrown if an expected argument is not found durng parsing
+ * \exception UnknownArgument will be emitted if an argument encountered during parsing is not recognised
  */
-bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
-                        ProgramSettings& settings);
+ProgramSettings processCommandLine(const std::vector<std::string>& cmdLineArgs);
 
 #endif    // MPAGSCIPHER_PROCESSCOMMANDLINE_HPP
