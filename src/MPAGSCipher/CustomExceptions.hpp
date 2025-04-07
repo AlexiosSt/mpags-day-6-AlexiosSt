@@ -43,4 +43,14 @@ class InconsistentArguments : public std::invalid_argument{
             std::invalid_argument{msg}{}
 };
 
+/**
+* \class InvalidKey
+* \brief Exception object to indicate an invalid cipher key which has been provided in the command-line
+*/
+class InvalidKey : public std::invalid_argument{
+    public:
+        InvalidKey(const std::string& msg):
+            std::invalid_argument{msg}{}
+};
+
 #endif // MPAGSCIPHER_CUSTOMEXCEPTIONS_HPP

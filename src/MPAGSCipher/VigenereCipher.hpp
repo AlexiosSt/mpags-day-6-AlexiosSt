@@ -5,6 +5,7 @@
 #include "Cipher.hpp"
 #include "CipherMode.hpp"
 #include "CipherType.hpp"
+#include "CustomExceptions.hpp"
 
 #include <map>
 #include <string>
@@ -24,13 +25,15 @@ class VigenereCipher : public Cipher {
      * \brief Create a new VigenereCipher with the given key
      *
      * \param key the key to use in the cipher
+     * \exception InvalidKey thrown when the key supplied is not valid
      */
     explicit VigenereCipher(const std::string& key);
 
     /**
      * \brief Set the key to be used for the encryption/decryption
-     *
+     * 
      * \param key the key to use in the cipher
+     * \exception InvalidKey thrown when the key supplied is not valid
      */
     void setKey(const std::string& key);
 

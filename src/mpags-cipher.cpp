@@ -104,10 +104,16 @@ int main(int argc, char* argv[])
     std::size_t nCiphers{settings.cipherType.size()};
     std::cout<<"OK, we run with "<<nCiphers<<" cipher(s)! "<<std::endl;
     ciphers.reserve(nCiphers);
-    for (std::size_t iCipher{0}; iCipher < nCiphers; ++iCipher) {
-        ciphers.push_back(CipherFactory::makeCipher(
-            settings.cipherType[iCipher], settings.cipherKey[iCipher]));
 
+    for (std::size_t iCipher{0}; iCipher < nCiphers; ++iCipher) {
+        try{
+            ciphers.push_back(CipherFactory::makeCipher(settings.cipherType[iCipher], settings.cipherKey[iCipher]));
+        }
+        catch (const InvalidKey& e){
+            std::cerr << "[error] invalid key for cipher " << iCipher
+                      << ": " << e.what() << std::endl;
+            return 1;
+        }
         // Check that the cipher was constructed successfully
         if (!ciphers.back()) {
             std::cerr << "[error] problem constructing requested cipher"

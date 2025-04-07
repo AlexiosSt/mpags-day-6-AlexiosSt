@@ -15,19 +15,16 @@ CaesarCipher::CaesarCipher(const std::string& key) : key_{0}
     
     if (!key.empty()) {
         if (key.front()=='-'){
-            std::cerr<<"[error] cipher key must be unsigned long integer for caesar cipher!! Change to default (0)!\n";
-            return;
+            throw InvalidKey{"The caesar cipher key must be unsigned long integer!"};
         }
         try{
             key_ = std::stoul(key) % Alphabet::size;
         }
         catch(std::invalid_argument& e){
-            std::cerr<<"[error] The key ("<<key<<") you gave me is not a number!! Change to default (0)!\n";
-            return;
+            throw InvalidKey{"The key you gave me is not a number!"};
         }
         catch(std::out_of_range& e){
-            std::cerr<<"[error] The key ("<<key<<") number is too large for ulong!! Change to default (0)!\n";
-            return;
+            throw InvalidKey{"The key number is too large for ulong!"};
         }
     }
 }
